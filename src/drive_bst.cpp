@@ -62,9 +62,9 @@ int main()
         //BST< size_t, std::string, decltype( compare_keys ) > tree( compare_keys );
 #endif
         // Test standard constructor
-        BST< size_t, std::string, decltype( compare_keys ) > tree( compare_keys );
+        BST< size_t, std::string > tree( compare_keys );
         // Test iterator constructor
-        BST< size_t, std::string, decltype( compare_keys ) > tree2( data2.begin(), data2.end() ,compare_keys );
+        BST< size_t, std::string > tree2( data2.begin(), data2.end() ,compare_keys );
         
         // Test insertion method
         std::cout << ">>> Inserting data:\n";
@@ -75,10 +75,10 @@ int main()
         }
 
         // Test copy constructor
-        BST< size_t, std::string, decltype( compare_keys ) > tree3(tree);
+        BST< size_t, std::string > tree3(tree);
 
         //Test list constructor
-        BST< size_t, std::string, decltype( compare_keys ) > tree4(data3, compare_keys);
+        BST< size_t, std::string > tree4(data3, compare_keys);
 
         std::cout << "\n>>> The tree:\n" << tree << std::endl;
 

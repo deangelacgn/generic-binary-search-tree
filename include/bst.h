@@ -28,9 +28,13 @@
   By default we try to instantiate a STL's  std::less<KeyType> function object if one is
   available for the KeyType provided.
 */
-template < typename KeyType, typename ValueType, typename KeyTypeLess=std::less<KeyType> >
+template < typename KeyType, typename ValueType >
 class BST
 {
+    public:
+        //=== alias
+        typedef std::function<bool(const KeyType& a, const KeyType& b) > KeyTypeLess; 
+
     private:
         //=== Definition of a BST node.
         //! Represents a single binary search tree node.
@@ -72,29 +76,7 @@ class BST
          *  @param value The value we wish to store in the tree.
          *  @see insert(const KeyType &, const ValueType & )
          */
-        void insert( BTNode * & root, const KeyType & key, const ValueType & value )
-        {
-            if(contains(root, key))
-            {
-                return;
-            }
-            else
-            {
-                if(root == nullptr)
-                {
-                    root = new BTNode(key, value, nullptr, nullptr);
-                    m_n_nodes++;
-                }
-                else if(m_key_less(root->key, key))
-                {
-                    insert(root->left, key, value);
-                }
-                else
-                {
-                    insert(root->right, key, value);
-                }
-            }
-        }
+        void insert( BTNode * & root, const KeyType & key, const ValueType & value );
 
         //! Removes from the BST a node containing the requested key.
         /*! Recursuvely tries to look for and remove from the BST
@@ -106,61 +88,8 @@ class BST
          *  @param key The key associated with the value we wish to operate on.
          *  @param value The value we wish to store in the tree.
          */
-        void remove( BTNode * & root, const KeyType & key )
-        {
-            if(root == nullptr)
-            {
-                return;
-            }
-            if(m_key_less(root->key, key))
-            {
-                remove(root->left, key);
-            }
-            else if(!m_key_less(root->key, key) && !m_key_less(key, root->key))
-            {
-                if(root->left == nullptr && root->right == nullptr)
-                {
-                    delete root;
-                    root = nullptr;
-                    m_n_nodes--;
-                }
-                else if(root->right == nullptr)
-                {
-                    BTNode * temp = root;
-                    root = root->left;
-                    temp->left = nullptr;
-                    temp->right = nullptr;
-                    delete temp;
-                    temp = nullptr;
-                    m_n_nodes--;
-                }
-                else if (root->left == nullptr)
-                {
-                    BTNode * temp = root;
-                    root = root->right;
-                    temp->left = nullptr;
-                    temp->right = nullptr;
-                    delete temp;
-                    temp = nullptr;
-                    m_n_nodes--;
-                }
-                else
-                {
-                    const BTNode * temp = get_smallest_leaf(root->right);
-                    root->key = temp->key;
-                    root->data = temp->data;
-                    remove(root->right, temp->key);
-                }
+        void remove( BTNode * & root, const KeyType & key );
 
-            }
-            else
-            {
-                remove(root->right, key);
-            }
-
-
-            return;
-        }
         //! Checks whether the BST contains a given key.
         /*! Recursively search the `root` for the key provided.
          *  Returns true if the key is found, or false otherwise.
@@ -169,26 +98,7 @@ class BST
          *  @return true if key is found in the tree, false otherwise.
          *  @see contains( const KeyType & ) const
          */
-        bool contains( const BTNode * root , const KeyType & key ) const
-        {
-            while(root != nullptr)
-            {
-                if(m_key_less(root->key, key))
-                {
-                    root = root->left;
-                }
-                else if(!m_key_less(root->key, key) && !m_key_less(key, root->key))
-                {
-                    return true;
-                }
-                else
-                {
-                    root = root->right;
-                }
-            }
-
-            return false;
-        }
+        bool contains( const BTNode * root , const KeyType & key ) const;
 
         //! Retrieves in `value` the value associated with the provided key.
         /*! Recursively tries to retrieve from the `root` BST the value associated
@@ -200,26 +110,7 @@ class BST
          *  @return true if key is found in the tree and the data is retrieved in value, false otherwise.
          *  @see retrieve( const KeyType & , ValueType & ) const
          */
-        bool retrieve( const BTNode * root , const KeyType & key, ValueType & value ) const 
-        {
-            while(root != nullptr)
-            {
-                if(m_key_less(root->key, key))
-                {
-                    root = root->left;
-                }
-                else if(!m_key_less(root->key, key) && !m_key_less(key, root->key))
-                {
-                    value = root->data;
-                    return true;
-                }
-                else
-                {
-                    root = root->right;
-                }
-            }
-            return false;
-        }
+        bool retrieve( const BTNode * root , const KeyType & key, ValueType & value ) const ;
 
         //! Removes all the elements from the BST.
         /*! Recursively deletes all the nodes of the BST pointed by `root`.
@@ -228,19 +119,7 @@ class BST
          *  @param root A pointer to the tree we want to operate on.
          *  @see clear(void)
          */
-        void clear( BTNode * & root )
-        {
-             if(root != nullptr)
-            {
-                delete root;
-                root = nullptr;
-                m_n_nodes = 0;
-            }
-            else
-            {
-                return;
-            }
-        }
+        void clear( BTNode * & root );
 
         //! Creates a copy of a BST tree.
         /*! Creates and returns an entire new tree that is a *deep copy*
@@ -251,20 +130,7 @@ class BST
          *  @param root A pointer to the root of the tree we want to clone from.
          *  @return A pointer to the cloned tree.
          */
-        BTNode * clone( const BTNode * root )
-        {
-            if(root == nullptr)
-            {
-                return nullptr;
-            }
-
-            BTNode * new_node = new BTNode(root->key, root->data);
-
-            new_node->left = clone(root->left);
-            new_node->right = clone(root->right);
-
-            return new_node;
-        }
+        BTNode * clone( const BTNode * root );
 
         //=== Tree traversal members
         //! Traverses and visits each BST node in **preorder** fashion.
@@ -279,18 +145,7 @@ class BST
          *  @see preorder( const UnaryFunction & ) const
          */
         template < typename UnaryFunction >
-        void preorder( const BTNode * root, const UnaryFunction & visit ) const 
-        {
-            if(root == nullptr)
-            {
-                return;
-            }
-            
-            visit(root->data);
-
-            preorder(root->left, visit);
-            preorder(root->right, visit);
-        }
+        void preorder( const BTNode * root, const UnaryFunction & visit ) const ;
 
         //! Traverses and visits each BST node in **postorder** fashion.
         /*! Recursively traverses the BST in **postorder** while applying an unary function to
@@ -304,18 +159,7 @@ class BST
          *  @see postorder( const UnaryFunction & ) const
          */
         template < typename UnaryFunction >
-        void postorder( const BTNode * root, const UnaryFunction & visit ) const 
-        {
-            if(root == nullptr)
-            {
-                return;
-            }
-
-            postorder(root->left, visit);
-            postorder(root->right, visit);
-
-            visit(root->data);
-        }
+        void postorder( const BTNode * root, const UnaryFunction & visit ) const ;
 
         //! Traverses and visits each BST node in **inorder** fashion.
         /*! Recursively traverses the BST in **inorder** while applying an unary function to
@@ -329,19 +173,7 @@ class BST
          *  @see inorder( const UnaryFunction & ) const
          */
         template < typename UnaryFunction >
-        void inorder( const BTNode * root, const UnaryFunction & visit ) const 
-        {
-            if(root == nullptr)
-            {
-                return;
-            }
-
-            inorder(root->left, visit);
-
-            visit(root->data);
-
-            inorder(root->right, visit);
-        }
+        void inorder( const BTNode * root, const UnaryFunction & visit ) const ;
 
         //! Returns a pointer to the BST node with the smallest key value.
         /*!
@@ -349,22 +181,7 @@ class BST
          * @param root Pointer to the root node of a tree.
          * @return A pointer to a leaf with the smallest key (left most leaf).
          */
-        const BTNode * get_smallest_leaf( const BTNode * root ) const 
-        {
-            if(root == nullptr)
-            {   
-                return nullptr;
-            }
-
-            if(root->left == nullptr)
-            {
-                return root;
-            }
-            else
-            {
-                return get_smallest_leaf(root->left);
-            }
-        }
+        const BTNode * get_smallest_leaf( const BTNode * root ) const ;
 
     public:
         //=== alias
@@ -392,18 +209,12 @@ class BST
          *  @param other The BST we are copying-constructing from.
          *  @see clone( const BTNode *)
          */
-        BST( const BST & other ):m_key_less(other.m_key_less) 
-        {
-            *this = other;
-        }
+        BST( const BST & other ) ;
 
         //! Regular destructor.
         /*! The destructor frees all the memory allocated while creating the BST.
          */
-        ~BST()
-        { 
-            delete m_root;
-        }
+        ~BST();
 
         //! The range constructor.
         /*!
@@ -421,13 +232,7 @@ class BST
          *  @param comp The function object necessary to compare keys.
          */
         template < typename InputItr >
-        BST( InputItr first, InputItr last, const KeyTypeLess & comp = KeyTypeLess() ): m_key_less(comp) 
-        {
-            for(auto it=first; it!= last; it++)
-            {  
-                (*this).insert(m_root, (*it).first, (*it).second);
-            }
-        }
+        BST( InputItr first, InputItr last, const KeyTypeLess & comp = KeyTypeLess() );
 
         //! The intializer list constructor.
         /*!
@@ -442,10 +247,7 @@ class BST
          *  @param init The initializer list to initialize the elements of the BST with.
          *  @param comp The function object necessary to compare keys.
          */
-        BST( std::initializer_list< node_content_type > init , const KeyTypeLess & comp = KeyTypeLess()): m_key_less(comp)
-        {
-            *this = init;
-        }
+        BST( std::initializer_list< node_content_type > init , const KeyTypeLess & comp = KeyTypeLess());
 
 
         //! The copy assignment operator.
@@ -460,15 +262,7 @@ class BST
          *  @param rhs The BST container to use as data source.
          *  @return `*this` to enable chained assignments.
          */
-        BST & operator=( const BST & rhs )
-        {
-            delete m_root;
-            m_root = clone(rhs.m_root);
-            m_n_nodes = rhs.m_n_nodes;
-            m_key_less = rhs.m_key_less;
-
-            return *this;
-        }
+        BST & operator=( const BST & rhs );
 
         //! The initializer list assignment operator.
         /*!
@@ -483,40 +277,13 @@ class BST
          *  @param ilist The initialize list to use as data source.
          *  @return `*this` to enable chained assignments.
          */
-        BST & operator=( std::initializer_list< node_content_type > ilist )
-        {
-            for(const auto & element: ilist)
-            {
-                (*this).insert(element.first, element.second);
-            }
-
-            return *this;
-        }
+        BST & operator=( std::initializer_list< node_content_type > ilist );
 
         //=== access members
         //! Returns the value associated with the smallest key.
-        const ValueType & find_min( void ) const
-        {
-            return get_smallest_leaf(m_root)->data;
-        }
+        const ValueType & find_min( void ) const;
         //! Returns the value associated with the largest key.
-        const ValueType & find_max( void ) const
-        {
-            if(m_root != nullptr)
-            {
-                BTNode * temp = m_root;
-                while(temp->right != nullptr)
-                {
-                    temp = temp->right;
-                }
-
-                return temp->data;
-            }
-            else
-            {
-                throw std::runtime_error("find_max: called upon an empty tree");
-            }
-        }
+        const ValueType & find_max( void ) const;
 
         //! Checks whether the BST contains a given key.
         /*! Returns true if the BST contains a given key, or false otherwise.
@@ -524,10 +291,7 @@ class BST
          *  @return true if key is found in the tree, false otherwise.
          *  @see contains( const BTNode * , const KeyType & ) const
          */
-        bool contains( const KeyType & key ) const
-        {
-            return contains(m_root, key);
-        }
+        bool contains( const KeyType & key ) const;
 
         //! Returns true if the BST is empty, or false otherwise.
         inline bool empty( void ) const { return m_n_nodes == 0; };
@@ -542,10 +306,7 @@ class BST
          *  @return true if key is found in the tree and the data is retrieved in value, false otherwise.
          *  @see retrieve( const BTNode * , const KeyType & , ValueType & ) const
          */
-        bool retrieve( const KeyType & key, ValueType & value ) const
-        {
-            return retrieve(m_root, key, value);
-        }
+        bool retrieve( const KeyType & key, ValueType & value ) const;
 
         //=== tree traversal members
         //! Traverses and visits each BST node in **preorder** fashion.
@@ -559,10 +320,7 @@ class BST
          *  @see preorder( const BTNode * , const UnaryFunction & ) const
          */
         template < typename UnaryFunction >
-        void preorder( const UnaryFunction & visit ) const 
-        {
-            return preorder(m_root, visit);
-        }
+        void preorder( const UnaryFunction & visit ) const ;
 
         //! Traverses and visits each BST node in **postorder** fashion.
         /*! During the **postorder** BST traversal the method applies an unary function to
@@ -575,10 +333,7 @@ class BST
          *  @see postorder( const BTNode * , const UnaryFunction & ) const
          */
         template < typename UnaryFunction >
-        void postorder( const UnaryFunction & visit ) const 
-        {
-            return postorder(m_root, visit);
-        }
+        void postorder( const UnaryFunction & visit ) const ;
 
         //! Traverses and visits each BST node in **inorder** fashion.
         /*! During the **inorder** BST traversal the method applies an unary function to
@@ -591,10 +346,7 @@ class BST
          *  @see inorder( const BTNode * , const UnaryFunction & ) const
          */
         template < typename UnaryFunction >
-        void inorder( const UnaryFunction & visit ) const 
-        {
-            return inorder(m_root, visit);
-        }
+        void inorder( const UnaryFunction & visit ) const ;
 
 
         //=== MODIFIER MEMBERS
@@ -604,10 +356,7 @@ class BST
          *  The count of nodes is set to zero.
          *  @see clear( BTNode * & )
          */
-        void clear( void )
-        {
-            return clear(m_root);
-        }
+        void clear( void );
 
         //! Inserts a new pair <`key`,`value`> in the tree.
         /*! Creates and inserts a new node with a <`key`,`value`> pair in the
@@ -616,10 +365,7 @@ class BST
          *  @param value The value we wish to store in the tree.
          *  @see insert( BTNode * & , const KeyType & , const ValueType & )
          */
-        void insert( const KeyType & key , const ValueType & value )
-        {
-            return insert(m_root, key, value);
-        }
+        void insert( const KeyType & key , const ValueType & value );
 
         //! Removes from the BST a node containing the requested key.
         /*! Removes from the BST a node containing the requested key if one
@@ -631,10 +377,7 @@ class BST
          *  @param value The value we wish to store in the tree.
          *  @see remove( BTNode * & , const KeyType & , const ValueType & )
          */
-        void remove( const KeyType & key )
-        {
-            remove(m_root, key);
-        }
+        void remove( const KeyType & key );
 
 
         //=== FRIEND FUNCTION
