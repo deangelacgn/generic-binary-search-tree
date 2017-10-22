@@ -17,33 +17,29 @@ void print(const T &arg)
 
 int main()
 {
-    //auto n_unit{0}; // unit test count.
+    auto n_unit{0}; // unit test count.
 
-    // Our BST will store strings with integer keys.
-    typedef std::pair< size_t,std::string > test_type;
+    // Our BST will store integers with integer keys.
+    typedef std::pair< size_t,size_t > test_type;
 
     // Input data
     test_type data[] = {
-        { 0, "zero" },
-        { 1, "one" },
-        { 2, "two" },
-        { 3, "three" },
-        { 4, "four" },
-        { 5, "five" },
-        { 6, "six" },
-        { 7, "seven" },
-        { 8, "eight" },
-        { 9, "nine" },
-        { 10, "ten" }
+        { 0, 0},
+        { 1, 1},
+        { 2, 2},
+        { 3, 3 },
+        { 4, 4},
+        { 5, 5 },
+        { 6, 6 },
+        { 7, 7 },
+        { 8, 8 },
+        { 9, 9 },
+        { 10, 10 }
     };
-
-    std::vector<test_type> data2 = {{ 5, "five" }, { 1, "one" }, { 7, "seven" }, { 0, "zero" }, { 6, "six" }, { 2, "two" }};
-    std::initializer_list<test_type> data3 = {{ 5, "five" }, { 1, "one" }, { 7, "seven" }, { 0, "zero" }, { 6, "six" }, { 2, "two" }};
-
 
     // Print the input
     {
-        size_t insertion_order[] = { 5, 1, 7, 0, 3, 2 };
+        //size_t insertion_order[] = { 5, 1, 7, 0, 3, 2 };
         // The tree declaration.
 //#define USE_FUNCTOR
 #ifdef USE_FUNCTOR
@@ -61,74 +57,258 @@ int main()
         };
         //BST< size_t, std::string, decltype( compare_keys ) > tree( compare_keys );
 #endif
-        // Test standard constructor
-        BST< size_t, std::string > tree( compare_keys );
-        // Test iterator constructor
-        BST< size_t, std::string > tree2( data2.begin(), data2.end() ,compare_keys );
-        
-        // Test insertion method
-        std::cout << ">>> Inserting data:\n";
-        for( const auto & e : insertion_order )
-        {
-            std::cout << "< " << std::setw(3) << data[e].first << " , \"" << data[e].second << "\" >\n";
-            tree.insert( data[e].first, data[e].second );
-        }
 
-        // Test copy constructor
-        BST< size_t, std::string > tree3(tree);
+    {
+    	{
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": insertion.\n";
+	        //The tree
+	        BST< size_t, size_t > tree( compare_keys );
 
-        //Test list constructor
-        BST< size_t, std::string > tree4(data3, compare_keys);
+	        for( const auto & e : data)
+	        {
+	            //std::cout << "< " << std::setw(3) << data[e].first << " , \"" << data[e].second << "\" >\n";
+	            tree.insert( e.first, e.second );
+	        }
+	        
+	        for( const auto & e : data )
+	        {
+	            assert( tree.contains( e.first ) );   
+	        }
+	        
+	        std::cout << ">>> Passed!\n\n";
+    	}
 
-        std::cout << "\n>>> The tree:\n" << tree << std::endl;
+    	{
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": find_min.\n";
 
-        //Test the constains() method
-        std::cout << "Does this tree contain the key 3? "<< tree.contains(3)<< std::endl;
+	        BST< size_t, size_t > tree( compare_keys );
 
-        std::cout << "Does this tree contain the key 11? "<< tree.contains(11)<< std::endl;
+	        auto min{ data[0].first };
+	        for( const auto & e : data )
+	        {
+	            // Get the smallest so far.
+	            min = std::min( min, e.first );
+	            tree.insert( e.first, e.second );
+	            assert( tree.find_min() == min );
+	        }
 
-        std::cout << "Does this tree contain the key 9? "<< tree.contains(9)<< std::endl;
+	        std::cout << ">>> Passed!\n\n";
+    	}
+     
+	    {   
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": find_max.\n";
 
-        //Test the find_max() method
-        std::cout << "Maximum value in the tree: "<< tree.find_max() << std::endl;
+	        BST< size_t, size_t > tree( compare_keys );
 
-        //Test the find_mind() method
-        std::cout << "Minimum value in the tree: "<< tree.find_min() << std::endl;
+	        auto max{ data[0].first };
+	        for( const auto & e : data )
+	        {
+	            // Get the smalles so far.
+	            max = std::max( max, e.first );
+	            tree.insert( e.first, e.second );
+	            assert( tree.find_max() == max );
+	        }
 
-        // Test retrieve() method
-        std::string placeholder;
-        tree.retrieve(3, placeholder);
-        std::cout << "Value of placeholder: "<< placeholder << std::endl;
+	        std::cout << ">>> Passed!\n\n";
+	    }
 
-        std::cout << "\n>>> The tree 2:\n" << tree2 << std::endl;
+	    {
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": size.\n";
+	        // The tree
+	        BST< size_t, size_t > tree( compare_keys );
 
-        std::cout << "\n>>> The tree 3:\n" << tree3 << std::endl;
+	        size_t expected_size{1};
+	        for( const auto & e : data )
+	        {
+	            tree.insert( e.first, e.second );
+	            assert( expected_size == tree.size() );
+	            ++expected_size;
+	        }
 
-        std::cout << "\n>>> The tree 4:\n" << tree4 << std::endl;
+        	std::cout << ">>> Passed!\n\n";
+    	}
 
-        // Test all traversals
-        std::cout << "Inorder traversal:"<<std::endl;
-        tree.inorder(print<std::string>);
+	    {
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": clear.\n";
+	        // The tree
+	        BST< size_t, size_t > tree( compare_keys );
+	        assert( true == tree.empty() );
 
-        std::cout << "Preorder traversal:"<<std::endl;
-        tree.preorder(print<std::string>);
+	        for( const auto & e : data )
+	            tree.insert( e.first, e.second );
 
-        std::cout << "postorder traversal:"<<std::endl;
-        tree.postorder(print<std::string>);
+	        tree.clear();
+	        assert( true == tree.empty() );
 
-        //Test clear method
-        tree.clear();
+	        std::cout << ">>> Passed!\n\n";
+	    }
 
-        std::cout << "Number of nodes: "<< tree.size() <<std::endl;
+	    {
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": retrieve.\n";
+	        // The tree
+	        BST< size_t, size_t > tree( compare_keys );
+	        assert( true == tree.empty() );
 
-        tree.remove(1);
-        tree.remove(7);
-        tree.remove(3); 
-        
-        std::cout << "\n>>> The tree:\n" << tree << std::endl;
+	        for( const auto & e : data )
+	            tree.insert( e.first, e.second );
 
+	        for( const auto & e : data )
+	        {
+	            size_t value;
+	            assert( tree.retrieve( e.first, value ) );
+	            assert( value == e.second );
+	        }
 
+	        std::cout << ">>> Passed!\n\n";
+    	}
 
+	    {
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": contains.\n";
+	        // The tree
+	        BST< size_t, size_t > tree( compare_keys );
+	        assert( true == tree.empty() );
+
+	        for( const auto & e : data )
+	            tree.insert( e.first, e.second );
+
+	        for( const auto & e : data )
+	        {
+	            assert( tree.contains( e.first ) );
+	        }
+
+	        std::cout << ">>> Passed!\n\n";
+	    }
+
+	    {
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": assignment operator.\n";
+	        // The tree
+	        BST< size_t, size_t > tree( compare_keys );
+	        assert( true == tree.empty() );
+
+	        for( const auto & e : data )
+	            tree.insert( e.first, e.second );
+
+	        // Assignment operator.
+	        auto tree2 = tree;
+
+	        // Let us test if everything is ok with the clone tree.
+	        for( const auto & e : data )
+	            assert( tree2.contains( e.first ) );
+
+	        std::cout << ">>> Passed!\n\n";
+    	}
+
+    	{
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": copy constructor.\n";
+	        // Creating a tree with > instead of <.
+	        BST< size_t, size_t > tree( compare_keys );
+	        assert( true == tree.empty() );
+
+	        for( const auto & e : data )
+	            tree.insert( e.first, e.second );
+
+	        // Assignment operator.
+	        auto tree_copy( tree );
+
+	        tree.clear();
+
+	        // Let us test if everything is ok with the clone tree.
+	        for( const auto & e : data )
+	            assert( tree_copy.contains( e.first ) );
+
+	        std::cout << ">>> Passed!\n\n";
+    	}
+
+    	{
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": empty.\n";
+	        // The tree
+	        BST< size_t, size_t > tree( compare_keys );
+
+	        assert( true == tree.empty() );
+
+	        for( const auto & e : data )
+	        {
+	            tree.insert( e.first, e.second );
+	            assert( false == tree.empty() );
+	        }
+	        
+	        for( const auto & e : data )
+	        {
+	            //std::cout << "Removing: < " << std::setw(3) << e.first << " , \"" << e.second << "\" >\n";
+	            tree.remove( e.first );
+	            //std::cout << "\n>>> [main()] The tree:\n" << tree << std::endl;
+	        }
+	        assert( true == tree.empty() );
+
+	        std::cout << ">>> Passed!\n\n";
+    	}
+
+    	{
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": deletion.\n";
+
+	        BST< size_t, size_t > tree( compare_keys );
+
+	        
+	        auto tree_copy( tree );
+	        for( const auto & e : data)
+	        {
+	            tree = tree_copy; // restore back the original tree.
+	            tree.remove( e.first ); // Remove a single node.
+	        }
+	        
+	         for( const auto & e : data)
+	        {
+	            tree.remove( e.first ); // Remove a single node.
+	        }
+	        std::cout << ">>> Passed!\n\n";
+
+    	}
+
+    	{
+	        std::cout << ">>> Unit teste #" << ++n_unit << ": tree traversal.\n";
+	        // The tree
+	        BST< size_t, size_t > tree( compare_keys );
+
+	        // Insert elements.
+	        for( const auto & e : data )
+	            tree.insert( e.first, e.second );
+
+	        // Expected answers
+	        std::vector< decltype(data[0].second) > pre_vec =
+	        { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	        std::vector< decltype(data[0].second) > in_vec =
+	        { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	        std::vector< decltype(data[0].second) > pos_vec =
+	        { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+
+	        // function object.
+	        std::vector< decltype(data[0].second) > vec;
+	        auto print = [&]( const decltype(data[0].second) & data_ )-> void
+	        {
+	            vec.push_back ( data_ ); // Capture data.
+	            //std::cout << data_ << ", ";
+	        };
+
+	        vec.clear();
+	        //std::cout << ">>> preorder tree traversal:\n";
+	        tree.preorder( print );
+	        assert( vec == pre_vec );
+
+	        vec.clear();
+	        //std::cout << "\n>>> inorder tree traversal:\n";
+	        tree.inorder( print );
+	        assert( vec == in_vec );
+
+	        vec.clear();
+	        //std::cout << "\n>>> postorder tree traversal:\n";
+	        tree.postorder( print );
+	        assert( vec == pos_vec );
+
+	        std::cout << ">>> Passed!\n\n";
+    	}
+
+    }
+		std::cout << "\n>>> Normal exiting...\n";	
     }
 
     return EXIT_SUCCESS;
