@@ -24,7 +24,7 @@ Moreover, this BST class has 4 different constructors:
 
 You can find more details about the implementation and description of all methods and constructors here.
 
-### Prerequisites
+### Preriquisites
 
 In order to use this BST class your compiler needs to support C++11 Standard. If you use a GCC compiler, at least GCC 4.8.1 is needed.
 
