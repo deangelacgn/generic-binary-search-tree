@@ -38,7 +38,7 @@ Inside the src folder you will find a drive_bst.cpp that has a few unit tests. C
 ```
 g++ -std=c++11 drive_bst.cpp -g && ./a.out
 ```
-If all tests pass, you can start playing around with the BST by incluind bst.h in your own .cpp files.
+If all tests pass, you can start playing around with the BST by including bst.h in your own .cpp files.
 
 ## Authors
 
